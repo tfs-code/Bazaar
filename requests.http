@@ -87,3 +87,111 @@ Content-Type: application/json
 {
   "name": "No Price"
 }
+
+
+# ---------------------------------------------------------------
+# Users
+# ---------------------------------------------------------------
+
+### Register -> 201 (note: no password_hash in the response)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "tyler@example.com",
+  "password": "correct-horse-battery-staple"
+}
+
+### Register a second user -> 201
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "second@example.com",
+  "password": "password"
+}
+
+
+### Same email again -> 409
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "tyler@example.com",
+  "password": "correct-horse-battery-staple"
+}
+
+### Malformed email -> 400
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "correct-horse-battery-staple"
+}
+
+### Password too short -> 400
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "someone@example.com",
+  "password": "short"
+}
+
+### Get a user -> 200, and NO password_hash in the body
+GET {{baseUrl}}/users/1
+
+### No such user -> 404
+GET {{baseUrl}}/users/9999
+
+### Update a user -> 200
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+
+{
+  "email": "tyler.updated@example.com",
+  "password": "a-different-password"
+}
+
+### Update a user that does not exist -> 404
+PUT {{baseUrl}}/users/9999
+Content-Type: application/json
+
+{
+  "email": "ghost@example.com",
+  "password": "a-different-password"
+}
+
+### Log in -> 200
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tyler.updated@example.com",
+  "password": "a-different-password"
+}
+
+### Wrong password -> 401
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tyler.updated@example.com",
+  "password": "wrong"
+}
+
+### Unknown email -> 401, same message
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nobody@example.com",
+  "password": "whatever"
+}
+
+### Who am I -> 200 if logged in
+GET {{baseUrl}}/auth/me
+
+### Log out -> 204
+POST {{baseUrl}}/auth/logout
