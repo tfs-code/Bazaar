@@ -1,0 +1,89 @@
+@baseUrl = http://localhost:3000
+
+### Health check
+GET {{baseUrl}}/health
+
+### Database connectivity
+GET {{baseUrl}}/db-check
+
+
+# ---------------------------------------------------------------
+# Products - happy paths
+# ---------------------------------------------------------------
+
+### List all products
+GET {{baseUrl}}/products
+
+### Get one product
+GET {{baseUrl}}/products/1
+
+### Create a product -> 201
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Enamel Pin",
+  "description": "Hard enamel, butterfly clasp",
+  "price_cents": 650,
+  "stock": 80
+}
+
+### Replace a product -> 200
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+
+{
+  "name": "Ceramic Mug",
+  "description": "Hand-thrown stoneware mug, 350ml",
+  "price_cents": 1395,
+  "stock": 38
+}
+
+### Delete a product -> 204
+DELETE {{baseUrl}}/products/6
+
+
+# ---------------------------------------------------------------
+# Products - failure paths
+# ---------------------------------------------------------------
+
+### No such product -> 404
+GET {{baseUrl}}/products/9999
+
+### Non-numeric id -> 400
+GET {{baseUrl}}/products/banana
+
+### Blank name -> 400
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "price_cents": 500
+}
+
+### Negative price -> 400
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Bad Price",
+  "price_cents": -5
+}
+
+### Fractional price -> 400 (prices are integer cents, 9.99 should be 999)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Float Price",
+  "price_cents": 9.99
+}
+
+### Missing price entirely -> 400
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "No Price"
+}
