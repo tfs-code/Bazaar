@@ -195,3 +195,120 @@ GET {{baseUrl}}/auth/me
 
 ### Log out -> 204
 POST {{baseUrl}}/auth/logout
+
+### My cart -> 200, empty to start
+GET {{baseUrl}}/cart
+
+### Add to cart -> 201
+POST {{baseUrl}}/cart/items
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+### Add the same product again -> 201, quantity becomes 4
+POST {{baseUrl}}/cart/items
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+### Product that does not exist -> 404
+POST {{baseUrl}}/cart/items
+Content-Type: application/json
+
+{
+  "product_id": 9999,
+  "quantity": 1
+}
+
+### Set an exact quantity -> 200 (PUT sets, POST adds)
+PUT {{baseUrl}}/cart/items/1
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
+
+### Set quantity on a product not in the cart -> 404
+PUT {{baseUrl}}/cart/items/4
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
+
+### Quantity of zero -> 400 (use DELETE to remove a line)
+PUT {{baseUrl}}/cart/items/1
+Content-Type: application/json
+
+{
+  "quantity": 0
+}
+
+### Remove one line -> 204
+DELETE {{baseUrl}}/cart/items/1
+
+### Remove the same line again -> 404
+DELETE {{baseUrl}}/cart/items/1
+
+### Non-numeric product id -> 400
+DELETE {{baseUrl}}/cart/items/banana
+
+### Empty the whole cart -> 204
+DELETE {{baseUrl}}/cart
+
+### Empty an already-empty cart -> 204 (idempotent, not a 404)
+DELETE {{baseUrl}}/cart
+
+
+# ---------------------------------------------------------------
+# Orders (all require login)
+# ---------------------------------------------------------------
+
+### Checkout with an empty cart -> 400
+POST {{baseUrl}}/orders
+
+### Put something in the cart first
+POST {{baseUrl}}/cart/items
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+### Place the order -> 201 (empties cart, decrements stock)
+POST {{baseUrl}}/orders
+
+### My orders, newest first -> 200
+GET {{baseUrl}}/orders
+
+### One order with its line items -> 200
+GET {{baseUrl}}/orders/1
+
+### An order that is not yours -> 404 (not 403 - we do not reveal it exists)
+GET {{baseUrl}}/orders/9999
+
+### Update the status -> 200
+PUT {{baseUrl}}/orders/1
+Content-Type: application/json
+
+{
+  "status": "paid"
+}
+
+### Unrecognised status -> 400
+PUT {{baseUrl}}/orders/1
+Content-Type: application/json
+
+{
+  "status": "banana"
+}
+
+### Delete an order -> 204 (returns the stock)
+DELETE {{baseUrl}}/orders/1

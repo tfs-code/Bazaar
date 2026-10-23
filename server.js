@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3000;
 const session = require("express-session");
 const passport = require("./auth/passport");
 const authRouter = require("./routes/auth");
+const cartRouter = require("./routes/cart");
+const ordersRouter = require("./routes/orders");
 
 app.use(express.json());
 
@@ -29,6 +31,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
+app.use("/cart", cartRouter);
+app.use("/orders", ordersRouter);
 
 const productsRouter = require("./routes/products");
 app.use("/products", productsRouter);
